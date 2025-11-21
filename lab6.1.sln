@@ -1,31 +1,185 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lab6.1", "lab6.1\lab6.1.vcxproj", "{B73EE7C5-9786-419D-A862-FBAADDC6140E}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Debug|x64.ActiveCfg = Debug|x64
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Debug|x64.Build.0 = Debug|x64
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Debug|x86.ActiveCfg = Debug|Win32
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Debug|x86.Build.0 = Debug|Win32
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Release|x64.ActiveCfg = Release|x64
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Release|x64.Build.0 = Release|x64
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Release|x86.ActiveCfg = Release|Win32
-		{B73EE7C5-9786-419D-A862-FBAADDC6140E}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {94AC4C3D-B07C-470C-B0DC-3A8FE17F0250}
-	EndGlobalSection
-EndGlobal
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+int* findZeroColumns(int** matrix, int rows, int cols, int& zeroCount) {
+    zeroCount = 0;
+    int* zeroColumns = (int*)calloc(cols, sizeof(int));
+
+    for (int j = 0; j < cols; ++j) {
+        for (int i = 0; i < rows; ++i) {
+            if (matrix[i][j] == 0) {
+                zeroColumns[zeroCount++] = j;
+                break;
+            }
+        }
+    }
+    zeroColumns = (int*)realloc(zeroColumns, zeroCount * sizeof(int));
+    return zeroColumns;
+}
+
+void removeColumns(int** matrix, int rows, int& cols, int* zeroColumns, int zeroCount) {
+    if (zeroCount == 0) return;
+
+    for (int k = 0; k < zeroCount; ++k) {
+        int colToRemove = zeroColumns[k];
+
+        for (int i = 0; i < rows; ++i) {
+            for (int j = colToRemove; j < cols - 1; ++j) {
+                matrix[i][j] = matrix[i][j + 1];
+            }
+        }
+
+        for (int i = 0; i < rows; ++i) {
+            matrix[i] = (int*)realloc(matrix[i], (cols - 1) * sizeof(int));
+        }
+
+        cols--;
+
+        for (int m = k + 1; m < zeroCount; ++m) {
+            zeroColumns[m]--;
+        }
+    }
+}
+
+void expandMatrix(int**& matrix, int& rows, int& cols, int A, int B, int C, int D) {
+    int newRows = 2 + A;
+    int newCols = 2 + B;
+
+    matrix = (int**)realloc(matrix, newRows * sizeof(int*));
+
+    for (int i = 0; i < 2; ++i) {
+        matrix[i] = (int*)realloc(matrix[i], newCols * sizeof(int));
+    }
+
+    for (int i = 2; i < newRows; ++i) {
+        matrix[i] = (int*)calloc(newCols, sizeof(int));
+    }
+
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 2; j < newCols; ++j) {
+            matrix[i][j] = (i - 1) * C + (j - 1) * D;
+        }
+    }
+
+    for (int i = 2; i < newRows; ++i) {
+        for (int j = 0; j < newCols; ++j) {
+            matrix[i][j] = (i - 1) * C + (j - 1) * D;
+        }
+    }
+
+    rows = newRows;
+    cols = newCols;
+}
+
+int pointerOperations() {
+    double* a = new double;
+    double* b = new double;
+
+    cout << "a: ";
+    cin >> *a;
+    cout << "b: ";
+    cin >> *b;
+    cout << "a = " << *a << ", b = " << *b << endl;
+
+    double* perA = a;
+    double* perB = b;
+
+    *perA *= 3;
+    cout << "a = " << *a << ", b = " << *b << endl;
+
+    double temp = *perA;
+    *perA = *perB;
+    *perB = temp;
+    cout << "a = " << *a << ", b = " << *b << endl;
+
+    delete a;
+    delete b;
+
+    return 0;
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    int A, B, C, D;
+
+    do {
+        cout << "A: ";
+        cin >> A;
+    } while (A < 0);
+
+    do {
+        cout << "B: ";
+        cin >> B;
+    } while (B < 0);
+
+    cout << "C: ";
+    cin >> C;
+    cout << "D: ";
+    cin >> D;
+
+    int rows = 2;
+    int cols = 2;
+
+    int** matrix = (int**)malloc(rows * sizeof(int*));
+    for (int i = 0; i < rows; ++i) {
+        matrix[i] = (int*)calloc(cols, sizeof(int));
+    }
+
+    matrix[0][0] = A;
+    matrix[0][1] = B;
+    matrix[1][0] = C;
+    matrix[1][1] = D;
+
+    cout << "Матрица 2x2:" << endl;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            cout << matrix[i][j] << "\t";
+        }
+        cout << endl;
+    }
+
+    expandMatrix(matrix, rows, cols, A, B, C, D);
+
+    cout << "\nМатрица после расширения " << rows << "x" << cols << ":" << endl;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            cout << matrix[i][j] << "\t";
+        }
+        cout << endl;
+    }
+
+    int zeroCount;
+    int* zeroColumns = findZeroColumns(matrix, rows, cols, zeroCount);
+
+    if (zeroCount > 0) {
+        cout << "Столбцы с нулями: ";
+        for (int i = 0; i < zeroCount; ++i) {
+            cout << zeroColumns[i] << " ";
+        }
+        cout << endl;
+
+        removeColumns(matrix, rows, cols, zeroColumns, zeroCount);
+
+        cout << "\nПосле удаления столбцов:" << endl;
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                cout << matrix[i][j] << "\t";
+            }
+            cout << endl;
+        }
+    }
+    else {
+        cout << "\nНет столбцов с нулями." << endl;
+    }
+
+    int result = pointerOperations();
+
+    free(zeroColumns);
+    for (int i = 0; i < rows; ++i) {
+        free(matrix[i]);
+    }
+    free(matrix);
+
+    return 0;
+}
